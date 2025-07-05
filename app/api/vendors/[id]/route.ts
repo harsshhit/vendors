@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import Vendor from "@/models/Vendor";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    const vendor = await Vendor.findById(params.id);
+    // Extract id from URL pathname
+    const pathname = request.nextUrl.pathname;
+    const id = pathname.split("/").pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Vendor ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const vendor = await Vendor.findById(id);
 
     if (!vendor) {
       return NextResponse.json(
@@ -31,12 +39,20 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
     await dbConnect();
+
+    // Extract id from URL pathname
+    const pathname = request.nextUrl.pathname;
+    const id = pathname.split("/").pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Vendor ID is required" },
+        { status: 400 }
+      );
+    }
 
     const body = await request.json();
 
@@ -50,7 +66,7 @@ export async function PUT(
       );
     }
 
-    const vendor = await Vendor.findByIdAndUpdate(params.id, body, {
+    const vendor = await Vendor.findByIdAndUpdate(id, body, {
       new: true,
     });
 
@@ -82,14 +98,22 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
     await dbConnect();
 
-    const vendor = await Vendor.findByIdAndDelete(params.id);
+    // Extract id from URL pathname
+    const pathname = request.nextUrl.pathname;
+    const id = pathname.split("/").pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Vendor ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const vendor = await Vendor.findByIdAndDelete(id);
 
     if (!vendor) {
       return NextResponse.json(
