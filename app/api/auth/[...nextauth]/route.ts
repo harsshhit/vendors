@@ -14,6 +14,20 @@ const handler = NextAuth({
   session: {
     strategy: "jwt",
   },
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith("https://") ?? false,
+  cookies: {
+    sessionToken: {
+      name: process.env.NEXTAUTH_URL?.startsWith("https://")
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: true,
+      },
+    },
+  },
   callbacks: {
     async session({ session, token }) {
       if (token.sub && session.user) {
@@ -30,7 +44,7 @@ const handler = NextAuth({
       return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: true,
 });
 
 export { handler as GET, handler as POST };
